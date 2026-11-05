@@ -6,7 +6,11 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-CDN_BASE="https://cdn.jsdelivr.net/gh/z-biz-resource/z-biz-resource-image@main"
+# 分发域名可覆盖：某些网络下 cdn.jsdelivr.net / raw.githubusercontent.com 不可达，
+# 换成可达的 jsDelivr 节点即可（路径不变）。例：
+#   IMAGE_CDN_HOST=gcore.jsdelivr.net ./bin/add-image.sh foo.png
+CDN_HOST="${IMAGE_CDN_HOST:-cdn.jsdelivr.net}"
+CDN_BASE="https://${CDN_HOST}/gh/z-biz-resource/z-biz-resource-image@main"
 RAW_BASE="https://raw.githubusercontent.com/z-biz-resource/z-biz-resource-image/main"
 
 usage() {
@@ -94,6 +98,16 @@ slug="$(printf '%s' "$slug" | sed 's/-*$//')"
 
 hash="$(sha256_file "$SRC")"
 hash="${hash:0:12}"
+
+# 同一份内容换个 slug 再传，不应产生第二个文件（否则 verify 会判为重复图）。
+existing="$(find images -type f -name "*-${hash}.${ext}" -print -quit 2>/dev/null || true)"
+if [ -n "$existing" ]; then
+  label="$(basename "$existing")"
+  label="${label%.*}"
+  echo "✓ 内容已存在（同一份图不重复入库），直接复用：$existing"
+  print_urls "$existing" "$label"
+  exit 0
+fi
 
 year="$(date +%Y)"; month="$(date +%m)"
 dir="images/$year/$month"

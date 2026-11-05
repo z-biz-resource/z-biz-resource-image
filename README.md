@@ -2,6 +2,7 @@
 
 > 图片入 Git，通过 `raw.githubusercontent.com` / jsDelivr 拿到**永久不变的公开 URL**。
 > 仓库：`z-biz-resource/z-biz-resource-image`（**public**，默认分支 `main`）
+> ⚠️ 部分网络下主分发域名不可达，复制 URL 前先看下面「网络可达性」一节。
 
 ## ⚠️ 上传前必读
 
@@ -53,7 +54,35 @@ Markdown：
 ![架构总览](https://cdn.jsdelivr.net/gh/z-biz-resource/z-biz-resource-image@main/images/2026/11/arch-overview-3f9a1c0d5b27.png)
 ```
 
-**优先用 jsDelivr**（有 CDN 缓存、国内可达性更好）；国内访问不稳时备用域名 `fastly.jsdelivr.net`；`raw.githubusercontent.com` 作为兜底。
+**优先用 jsDelivr**（有 CDN 缓存），`raw.githubusercontent.com` 作为兜底。URL 里的 host 可以直接替换，路径部分不变。
+
+### 网络可达性（换网络务必重验）
+
+jsDelivr 有多个等价节点域名，只换 host、路径不动：
+
+| host | 说明 |
+|---|---|
+| `cdn.jsdelivr.net` | 官方主域名（`add-image.sh` 默认） |
+| `fastly.jsdelivr.net` | 备用节点 |
+| `gcore.jsdelivr.net` | 备用节点 |
+| `testingcf.jsdelivr.net` | 备用节点 |
+
+自检命令：
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' \
+  https://cdn.jsdelivr.net/gh/z-biz-resource/z-biz-resource-image@main/README.md
+```
+
+**2026-11-05 建仓当天本机实测**：`cdn.jsdelivr.net`、`raw.githubusercontent.com`、`fastly.jsdelivr.net`（301 跳到 raw）、`github.com/.../raw/...`（302 跳到 raw）**全部 TLS 连接被重置**（curl 35 / HTTP 000）；只有 `gcore.jsdelivr.net` 返回 200 且内容正确。`api.github.com` 与 SSH push 都正常 —— 所以这是分发域名的网络问题，不是仓库没建好。
+
+在本机上传时切到可达节点：
+
+```bash
+IMAGE_CDN_HOST=gcore.jsdelivr.net ./bin/add-image.sh ~/Desktop/diagram.png
+```
+
+⚠️ 如果目标读者所在网络连所有 jsDelivr 节点和 raw 都通不了，**GitHub 图床这个形态就不成立**，应改成「对象存储 + 自有域名 + CDN」，本仓退化为只放索引与上传脚本。别靠反复换域名硬扛。
 
 ### 为什么文件名必须带内容哈希
 
