@@ -1,0 +1,14 @@
+# 图片是二进制资产：禁止换行转换、禁止文本 diff / 合并策略猜测。
+images/** -text -diff -merge
+
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.avif  binary
+*.ico   binary
+*.bmp   binary
+
+# svg 是文本，保留 diff（便于审阅，但上传前须确认无脚本/外链）
+*.svg   text

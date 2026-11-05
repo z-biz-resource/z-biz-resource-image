@@ -1,0 +1,37 @@
+# ============================================================
+# z-biz-resource-image · 公共图床
+# 注意：图片是源资产，这里刻意【不】忽略 images/ 下任何图片。
+# ============================================================
+
+# ---------- 系统文件 ----------
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ---------- 编辑器 / 临时 ----------
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.tmp
+*.part
+.tmp/
+
+# ---------- 密钥：公开仓绝不接受任何凭据 ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*_rsa
+*_rsa.pub
+credentials*.json
+
+# ---------- 本机工具产物 ----------
+__pycache__/
+*.pyc
